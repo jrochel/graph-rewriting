@@ -1,0 +1,5 @@
+import peano.trs
+import add.trs
+
+M0x       → 0
+M(Sy)x    → A(Myx)x

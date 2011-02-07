@@ -1,0 +1,4 @@
+import peano.trs
+
+A0x    → x
+A(Sx)y → S(Axy)
