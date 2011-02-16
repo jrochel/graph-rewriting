@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax, FlexibleInstances #-}
+{-# LANGUAGE UnicodeSyntax, FlexibleInstances, FlexibleContexts #-}
 module Main where
 
 import GraphRewriting.Graph
@@ -9,7 +9,7 @@ import Resolver (resolve)
 import Graph
 import GL ()
 import Rules
-import GraphRewriting.Rule
+import GraphRewriting.Rule hiding (erase)
 import GraphRewriting.Pattern
 import GraphRewriting.Graph.Read
 import GraphRewriting.Graph.Write.Unsafe as Unsafe
@@ -19,7 +19,7 @@ import GraphRewriting.Layout.Gravitation
 import GraphRewriting.Layout.Wrapper
 
 
-instance Render (Wrapper NodeLS) where render = render . wrappee
+instance Render (Wrapper NodeWW) where render = render . wrappee
 
 main ∷ IO ()
 main = do
@@ -39,16 +39,27 @@ layoutStep n = do
 		sf ← springForce 1.5 n
 		rot ← angularMomentum n
 		return (cgf, cf, sf, rot)
-	Unsafe.adjustNode (Position . sf (\x → min 10 (x*0.9)) . cgf (\x → min 10 (x*0.01)) . cf (\x → min 10 (100/(x^2+0.1))) . position) n
-	Unsafe.adjustNode (rot (*0.9)) n
+	Unsafe.adjustNode n $ Position . sf (\x → min 10 (x*0.9)) . cgf (\x → min 10 (x*0.01)) . cf (\x → min 10 (100/(x^2+0.1))) . position
+	Unsafe.adjustNode n $ rot (*0.9)
+
+unshare ∷ (View [Port] n, View NodeWW n) ⇒ Rule n
+unshare = duplicatePrimitive <|> duplicateFunction where
+	duplicateFunction = initDuplication >>> exhaustive (everywhere duplicate) >>> exhaustive (everywhere deactivate)
+	duplicate = anyOf [duplicateAbstractor, duplicateApplicator, duplicateDuplicator, duplicateEraser, annihilate]
 
 ruleTree = Branch "All"
-	[Leaf "Beta Reduction" beta,
-	 Branch "All but Beta"
-	 	[Leaf "Duplicate" duplicate,
-	 	 Leaf "Eliminate" (eliminateDelimiter <|> eliminateDuplicator),
-	 	 Leaf "Annihilate" annihilate,
-	 	 Leaf "Commute Delimiter" commuteDelimiter,
-	 	 Leaf "Erase" eraser, 
-	 	 Branch "Primitive" [Leaf "Constant" applyConstant, Leaf "Function" applyFunction]],
-	 Leaf "All but Beta (exhaustively)" $ exhaustive $ anyOf [duplicate, eliminateDelimiter, eliminateDuplicator, annihilate, commuteDelimiter, eraser, applyConstant, applyFunction]]
+	[Branch "Safe"
+		[Leaf "Beta Reduction" beta,
+	 	 Leaf "Apply Primitive" applyPrimitive,
+	 	 Leaf "Unshare MFE" unshare,
+	 	 Leaf "Eliminate" eliminate,
+	 	 Leaf "Erase" erase],
+	 Branch "Unshare MFE (unsafe)"
+	 	[Leaf "Initiate" initDuplication,
+	 	 Branch "Intermediate"
+	    	 [Leaf "DuplicateAbstractor" duplicateAbstractor,
+	     	  Leaf "DuplicateApplicator" duplicateApplicator,
+	     	  Leaf "DuplicateDuplicator" duplicateDuplicator,
+	     	  Leaf "DuplicateEraser" duplicateEraser,
+	     	  Leaf "Annihilate" annihilate],
+	 	 Leaf "Finalise" deactivate]]

@@ -31,13 +31,13 @@ parser = expression where
 	parenthetic = parens haskell expression
 
 	abstraction = flip label "abstraction" $ do
-		sym "λ" <|> sym "\\"
+		_ ← sym "λ" <|> sym "\\"
 		vars ← many1 ident
-		sym "." <|> sym "→" <|> sym "->"
+		_ ← sym "." <|> sym "→" <|> sym "->"
 		body ← expression
 		return $ foldr Λ body vars
 
-	variable = liftM V $ ident <|> liftM (either show show) (naturalOrFloat haskell)
+	variable = liftM V $ ident <|> operator haskell <|> liftM (either show show) (naturalOrFloat haskell)
 
 	-- Ugly, but works. Keyword "in" terminates binding blocks and bindings. Allows empty lets
 	letBinding = flip label "let binding" $ do
