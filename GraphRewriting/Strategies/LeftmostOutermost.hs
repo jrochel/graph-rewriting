@@ -13,7 +13,7 @@ import Data.List (intersect, (\\))
 class LeftmostOutermost n where
 	lmoPort :: n -> Maybe Int -- the number is the index of the left port in the list of ports
 
-instance LeftmostOutermost n ⇒ LeftmostOutermost (ControlWrapper n) where
+instance LeftmostOutermost n ⇒ LeftmostOutermost (Wrapper n) where
 	lmoPort = lmoPort . wrapped
 
 getLmoPort ∷ (View [Port] n, LeftmostOutermost n) ⇒ Node → Pattern n Port

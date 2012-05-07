@@ -1,9 +1,9 @@
 Name:          graph-rewriting-strategies
-Version:       0.1.0
+Version:       0.2
 Copyright:     2012, Robert Kreuzer, Jan Rochel
 License:       BSD3
 License-File:  LICENSE
-Author:        Jan Rochel
+Author:        Robert Kreuzer, Jan Rochel
 Maintainer:    jan@rochel.info
 Homepage:      http://rochel.info/#graph-rewriting
 Stability:     alpha
@@ -17,10 +17,8 @@ Library
   Build-Depends:
     base >= 4 && < 4.6,
     base-unicode-symbols >= 0.2 && < 0.3,
-    graph-rewriting >= 0.5 && < 0.7,
---    AC-Vector >= 2.3 && < 2.4,
+    graph-rewriting >= 0.7 && < 0.8,
     containers >= 0.4 && < 0.5
---    graph-rewriting-layout >= 0.5 && < 0.6
   Exposed-Modules:
     GraphRewriting.Strategies.Control
     GraphRewriting.Strategies.LeftmostOutermost
