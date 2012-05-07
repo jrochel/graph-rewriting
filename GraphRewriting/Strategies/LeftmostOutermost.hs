@@ -10,23 +10,19 @@ import Data.List (intersect, (\\))
 
 
 -- | Gives us the the 'left' port for a given node
-class LeftmostOutermost n where
-	lmoPort :: n -> Maybe Int -- the number is the index of the left port in the list of ports
+class LeftmostOutermost n where lmoPort ∷ n → Maybe Port
 
-instance LeftmostOutermost n ⇒ LeftmostOutermost (Wrapper n) where
-	lmoPort = lmoPort . wrapped
+instance LeftmostOutermost n ⇒ LeftmostOutermost (Wrapper n) where lmoPort = lmoPort . wrapped
 
-getLmoPort ∷ (View [Port] n, LeftmostOutermost n) ⇒ Node → Pattern n Port
+getLmoPort ∷ (LeftmostOutermost n) ⇒ Node → Pattern n Port
 getLmoPort n = do
 	node ← liftReader $ readNode n
-	let ports = inspect node
 	case lmoPort node of
 		Nothing → fail "Term is in WHNF"
-		Just ix → return $ ports !! ix
+		Just lo → return lo
 
 -- It does not compile with this type signature, even when IncoherentInstances are given in Control.
--- moveControl :: forall m n . (View [Port] n, View Control n, LeftmostOutermost n, View m n) => Rule n
-moveControl :: (View [Port] n, View Control n, LeftmostOutermost n) => Rule n
+moveControl ∷ (View [Port] n, View Control n, LeftmostOutermost n) => Rule n
 moveControl = do
 	Control {stack = s} ← node
 	control ← previous
@@ -37,11 +33,10 @@ moveControl = do
 		updateNode n (Control {stack = control : s})
 
 -- It does not compile with this type signature, even when IncoherentInstances are given in Control.
---leftmostOutermost :: (View [Port] n, View Control n, LeftmostOutermost n, View m n) => Rule n -> Rule n
-leftmostOutermost :: (View Control n, View [Port] n) ⇒ Rule n → Rule n
+leftmostOutermost ∷ (View Control n, View [Port] n) ⇒ Rule n → Rule n
 leftmostOutermost r = do
-	rewrite <- r
-	ns <- history -- we want the first node of the matching pattern
+	rewrite ← r
+	ns ← history -- we want the first node of the matching pattern
 	let topnode = last ns
 	Control {stack = s} ← liftReader $ inspectNode topnode
 	return $ do
