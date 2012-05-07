@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax, ScopedTypeVariables, FlexibleContexts #-}
+{-# LANGUAGE UnicodeSyntax, FlexibleContexts #-}
 module GraphRewriting.Strategies.LeftmostOutermost where
 
 import GraphRewriting.Pattern
@@ -6,8 +6,8 @@ import GraphRewriting.Graph.Write
 import GraphRewriting.Graph.Read
 import GraphRewriting.Rule
 import GraphRewriting.Strategies.Control
-import Data.List (transpose, elemIndex, intersect, (\\))
-import Data.View
+import Data.List (intersect, (\\))
+
 
 -- | Gives us the the 'left' port for a given node
 class LeftmostOutermost n where
@@ -37,7 +37,8 @@ moveControl = do
 		updateNode n (Control {stack = control : s})
 
 -- It does not compile with this type signature, even when IncoherentInstances are given in Control.
--- leftmostOutermost :: forall m n . (View [Port] n, View Control n, LeftmostOutermost n, View m n) => Rule n -> Rule n
+--leftmostOutermost :: (View [Port] n, View Control n, LeftmostOutermost n, View m n) => Rule n -> Rule n
+leftmostOutermost :: (View Control n, View [Port] n) ⇒ Rule n → Rule n
 leftmostOutermost r = do
 	rewrite <- r
 	ns <- history -- we want the first node of the matching pattern

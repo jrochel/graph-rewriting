@@ -1,6 +1,6 @@
 Name:          graph-rewriting-strategies
 Version:       0.1.0
-Copyright:     (c) 2010, Jan Rochel
+Copyright:     2012, Robert Kreuzer, Jan Rochel
 License:       BSD3
 License-File:  LICENSE
 Author:        Jan Rochel
@@ -8,7 +8,7 @@ Maintainer:    jan@rochel.info
 Homepage:      http://rochel.info/#graph-rewriting
 Stability:     alpha
 Build-Type:    Simple
-Synopsis:      Support for evaluation strategies for graph rewriting systems.
+Synopsis:      Support for evaluation strategies for port-graph rewriting systems.
 Description:   Defines a mechanism to add evaluation strategies to graph rewriting systems. Leftmost-outermost reduction is implemented as an example.
 Category:      Graphs, Graphics
 Cabal-Version: >= 1.6
@@ -18,10 +18,10 @@ Library
     base >= 4 && < 4.6,
     base-unicode-symbols >= 0.2 && < 0.3,
     graph-rewriting >= 0.5 && < 0.7,
-    AC-Vector >= 2.3 && < 2.4,
-    containers >= 0.4 && < 0.5,
-    graph-rewriting-layout >= 0.5 && < 0.6
+--    AC-Vector >= 2.3 && < 2.4,
+    containers >= 0.4 && < 0.5
+--    graph-rewriting-layout >= 0.5 && < 0.6
   Exposed-Modules:
     GraphRewriting.Strategies.Control
     GraphRewriting.Strategies.LeftmostOutermost
-  GHC-Options: -fno-warn-duplicate-exports
+  GHC-Options:    -fno-warn-duplicate-exports -fwarn-unused-binds -fwarn-unused-imports -fwarn-unused-do-bind -fwarn-wrong-do-bind -fwarn-unrecognised-pragmas
