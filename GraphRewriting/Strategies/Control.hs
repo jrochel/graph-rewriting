@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax, FlexibleInstances, MultiParamTypeClasses, FlexibleContexts #-}
+{-# LANGUAGE UnicodeSyntax, FlexibleInstances, MultiParamTypeClasses, FlexibleContexts, OverlappingInstances #-}
 module GraphRewriting.Strategies.Control where
 
 import Data.View
@@ -21,7 +21,7 @@ instance View v n ⇒ View v (Wrapper n) where
 -- | Wraps the nodes of a graph, augmenting them with control information
 wrapGraph :: Graph n -> Graph (Wrapper n)
 wrapGraph graph = graph {nodeMap = newNodeMap} where
-		wrapNode k n = Wrapper {control = NoControl, wrapped = n}
+		wrapNode n = Wrapper {control = NoControl, wrapped = n}
 		rootNodeId = minimum (Map.keys $ nodeMap graph)
- 		controlgraph = unsafeMapNodesUnique wrapNode graph
+		controlgraph = unsafeMapNodes wrapNode graph
  		newNodeMap = Map.update (\x → Just $ x {control = Control []}) rootNodeId (nodeMap controlgraph)
