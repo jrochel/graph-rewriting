@@ -1,5 +1,5 @@
 Name:          graph-rewriting-strategies
-Version:       0.2.2
+Version:       0.2.3
 Copyright:     2012, Robert Kreuzer, Jan Rochel
 License:       BSD3
 License-File:  LICENSE
@@ -15,7 +15,7 @@ Cabal-Version: >= 1.6
 
 Library
   Build-Depends:
-    base >= 4 && < 4.7,
+    base >= 4 && < 4.8,
     base-unicode-symbols >= 0.2 && < 0.3,
     graph-rewriting >= 0.7 && < 0.8,
     containers >= 0.4 && < 0.6
