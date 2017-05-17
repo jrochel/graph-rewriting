@@ -1,5 +1,5 @@
 Name:          graph-rewriting-strategies
-Version:       0.2.4
+Version:       0.2.6
 Copyright:     2012, Robert Kreuzer, Jan Rochel
 License:       BSD3
 License-File:  LICENSE
@@ -16,10 +16,10 @@ Extra-Source-Files: AUTHORS
 
 Library
   Build-Depends:
-    base >= 4 && < 4.9,
-    base-unicode-symbols >= 0.2 && < 0.3,
-    graph-rewriting >= 0.7.8 && < 0.8,
-    containers >= 0.4 && < 0.6
+    base >= 4.8,
+    base-unicode-symbols >= 0.2,
+    graph-rewriting >= 0.7.8,
+    containers >= 0.4
   Exposed-Modules:
     GraphRewriting.Strategies.Control
     GraphRewriting.Strategies.LeftmostOutermost
