@@ -69,6 +69,9 @@ instance Applicative (Replace n) where
 		return (f x, merges1 ⧺ merges2)
 	pure = return
 
+instance Semigroup (Replace n ()) where
+	(<>) = (>>)
+
 instance Monoid (Replace n ()) where
 	mempty = return ()
 	mappend = (>>)
