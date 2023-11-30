@@ -7,7 +7,7 @@ import GraphRewriting.Pattern.Internal
 import GraphRewriting.Graph.Read
 import Control.Monad.Reader
 import Control.Monad.List
-import Control.Monad.Identity
+import Data.Functor.Identity
 import qualified Data.Set as Set (empty, insert, member)
 import Control.Applicative
 
@@ -15,12 +15,17 @@ import Control.Applicative
 -- | A pattern represents a graph scrutinisation that memorises all the scrutinised nodes during matching.
 type Pattern n = PatternT n Identity
 
+instance MonadFail Identity where
+	fail = error
+
 instance Monad m ⇒ Monad (PatternT n m) where
 	return x = PatternT $ \h → return ([],x)
 	p >>= f = PatternT $ \h → do
 		(m1,x) ← patternT p h
 		(m2,y) ← patternT (f x) (reverse m1 ⧺ h)
 		return (m1 ⧺ m2, y)
+
+instance MonadFail m ⇒ MonadFail (PatternT n m) where
 	fail str = PatternT $ \h → lift (fail str)
 
 instance MonadTrans (PatternT n) where
@@ -38,15 +43,18 @@ instance Monad m ⇒ Applicative (PatternT n m) where
 		f' ← f
 		f' <$> x
 
-instance Monad m ⇒ Alternative (PatternT n m) where
+instance MonadFail m ⇒ Alternative (PatternT n m) where
 	empty = mzero
 	(<|>) = mplus
 
-instance Monad m ⇒ Monoid (PatternT n m a) where
+instance MonadFail m ⇒ Semigroup (PatternT n m a) where
+	(<>) = mplus
+
+instance MonadFail m ⇒ Monoid (PatternT n m a) where
 	mempty = mzero
 	mappend = mplus
 
-instance Monad m ⇒ MonadPlus (PatternT n m) where
+instance MonadFail m ⇒ MonadPlus (PatternT n m) where
 	mzero = fail "empty result list"
 	mplus p q = PatternT $ \h → do -- TODO: this implements choice. Is mplus the right function for that?
 		g ← ask
@@ -72,7 +80,7 @@ branch ∷ Monad m ⇒ [a] → PatternT n m a -- TODO: express this using Altern
 branch xs = PatternT $ \h → lift $ ListT $ return [([],x) | x ← xs]
 
 -- | 'branch' on each node, add it to the history, and return it
-branchNodes ∷ Monad m ⇒ [Node] → PatternT n m Node
+branchNodes ∷ MonadFail m ⇒ [Node] → PatternT n m Node
 branchNodes ns = do -- TODO: express this using Alternative?
 	n ← branch ns
 	visit n
@@ -99,15 +107,15 @@ anyOf ∷ Alternative f ⇒ [f a] → f a
 anyOf = foldr (<|>) empty
 
 -- | conditional rewriting: 'fail' when predicate is not met
-require ∷ Monad m ⇒ Bool → m ()
+require ∷ MonadFail m ⇒ Bool → m ()
 require p = unless p $ fail "requirement not met"
 
 -- | 'fail' if given pattern succeeds, succeed if it fails.
-requireFailure ∷ Monad m ⇒ PatternT n m a → PatternT n m ()
+requireFailure ∷ MonadFail m ⇒ PatternT n m a → PatternT n m ()
 requireFailure p = require . not =<< probe p
 
 -- | 'fail' when monadic predicate is not met
-requireM ∷ Monad m ⇒ m Bool → m ()
+requireM ∷ MonadFail m ⇒ m Bool → m ()
 requireM p = p >>= require
 
 -- some base patterns --------------------------------------------------------
@@ -119,7 +127,7 @@ liftReader r = PatternT $ \h → do
 	return ([],x)
 
 -- | any node anywhere in the graph
-node ∷ (Monad m, View v n) ⇒ PatternT n m v
+node ∷ (MonadFail m, View v n) ⇒ PatternT n m v
 node = liftReader . inspectNode =<< branchNodes =<< liftReader readNodeList
 
 -- | A specific node
@@ -133,7 +141,7 @@ edge ∷ Monad m ⇒ PatternT n m Edge
 edge = branch =<< liftReader readEdgeList
 
 -- | node that is connected to given edge
-nodeWith ∷ (Monad m, View v n) ⇒ Edge → PatternT n m v
+nodeWith ∷ (MonadFail m, View v n) ⇒ Edge → PatternT n m v
 nodeWith e = liftReader . inspectNode =<< branchNodes =<< liftReader (attachedNodes e)
 
 -- | edge that is attached to given node
@@ -141,22 +149,22 @@ edgeOf ∷ (Monad m, View [Port] n) ⇒ Node → PatternT n m Edge
 edgeOf n = branch =<< liftReader (attachedEdges n)
 
 -- | node that is connected to the given node, but not that node itself
-neighbour ∷ Monad m => (View [Port] n, View v n) ⇒ Node → PatternT n m v
+neighbour ∷ (MonadFail m) => (View [Port] n, View v n) ⇒ Node → PatternT n m v
 neighbour n = liftReader . inspectNode =<< branchNodes =<< liftReader (neighbours n)
 
 -- | node that is connected to the given node, permitting the node itself
-relative ∷ (Monad m, View [Port] n, View v n) ⇒ Node → PatternT n m v
+relative ∷ (MonadFail m, View [Port] n, View v n) ⇒ Node → PatternT n m v
 relative n = liftReader . inspectNode =<< branchNodes =<< liftReader (relatives n)
 
 -- | nodes connected to given port of the specified node, not including the node itself.
 -- Consider as an alternative 'linear' combined with 'nodeWith'.
-adverse ∷ (Monad m, View [Port] n, View v n) ⇒ Port → Node → PatternT n m v
+adverse ∷ (MonadFail m, View [Port] n, View v n) ⇒ Port → Node → PatternT n m v
 adverse p n = liftReader . inspectNode =<< branchNodes =<< liftReader (adverseNodes n p)
 
 -- controlling history and future --------------------------------------------
 
 -- | A specific node
-visit ∷ Monad m ⇒ Node → PatternT n m ()
+visit ∷ MonadFail m ⇒ Node → PatternT n m ()
 visit n = do
 	exists ← liftReader $ existNode n
 	if exists

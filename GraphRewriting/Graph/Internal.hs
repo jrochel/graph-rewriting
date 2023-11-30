@@ -14,6 +14,8 @@ data Graph n = Graph {nodeMap ∷ IntMap n, edgeMap ∷ IntMap IntSet, nextKey �
 newtype Rewrite n a = Rewrite {rewrite ∷ State (Graph n) a}
 	deriving (MonadState (Graph n), Monad, Functor, MonadFix)
 
+instance MonadFail (Rewrite n) where fail = error
+
 deriving instance Applicative (Rewrite n)
 
 newtype Node = Node {nKey ∷ Int} deriving (Eq, Ord) -- TODO: change this into Integer to avert overflow
@@ -27,10 +29,10 @@ instance MonadReader (Graph n) (Rewrite n) where
 	ask = Rewrite get
 	local f m = Rewrite $ gets (evalState (rewrite m) . f)
 
-readRef ∷ Monad m ⇒ Int → IntMap a → m a
+readRef ∷ MonadFail m ⇒ Int → IntMap a → m a
 readRef key = maybe (fail "readRef: referentiation failed") return . Map.lookup key
 
-readEdge ∷ MonadReader (Graph n) r ⇒ Edge → r IntSet
+readEdge ∷ MonadFail r ⇒ MonadReader (Graph n) r ⇒ Edge → r IntSet
 readEdge (Edge e) = maybe (fail $ "readEdge: edge with ID " ⧺ show e ⧺ " does not exist") return . readRef e =<< asks edgeMap
 
 modifyNodeMap ∷ (IntMap n → IntMap n) → Rewrite n ()
@@ -48,7 +50,7 @@ newRef = do
 
 -- | Hand out an infinite number of fresh refs, without reserving them (obviously).
 freeRefs ∷ MonadReader (Graph n) r ⇒ r [Int]
-freeRefs = enumFrom `liftM` asks nextKey
+freeRefs = asks (enumFrom . nextKey)
 
 reserveRefs ∷ [Int] → Rewrite n ()
 reserveRefs refs = modify $ \g → g {nextKey = maximum refs}
