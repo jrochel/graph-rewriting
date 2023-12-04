@@ -16,6 +16,7 @@ import GraphRewriting.Layout.Position
 import GraphRewriting.Layout.Rotation
 import GraphRewriting.Layout.PortSpec
 import GraphRewriting.Layout.Geometry
+import GraphRewriting.Pattern ()
 import Data.Vector.V2
 import Data.View
 import Control.Monad

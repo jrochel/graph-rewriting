@@ -3,8 +3,9 @@ module GraphRewriting.Layout.Gravitation where
 
 import Data.View
 import Data.Vector.Class
-import Data.Vector.V2
-import Data.Functor
+import Data.Vector.V2 ()
+import Data.Functor ()
+import GraphRewriting.Pattern ()
 import GraphRewriting.Graph.Types
 import GraphRewriting.Graph.Read
 import GraphRewriting.Layout.Position

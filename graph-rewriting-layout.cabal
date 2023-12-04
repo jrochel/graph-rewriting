@@ -6,15 +6,18 @@ License-File:  LICENSE
 Author:        Jan Rochel
 Maintainer:    jan@rochel.info
 Homepage:      http://rochel.info/#graph-rewriting
-Stability:     beta
+Source-Repository head
+  Type:     git
+  Location: https://github.com/jrochel/graph-rewriting
 Build-Type:    Simple
 Synopsis:      Force-directed node placement intended for incremental graph drawing
 Description:   Defines basic methods for force-directed node displacement that can be combined into an incremental graph-drawing procedure. See graph-rewriting-ski package for an example.
 Category:      Graphs, Graphics
-Cabal-Version: >= 1.6
+Cabal-Version: >= 1.10
 Extra-Source-Files: AUTHORS
 
 Library
+  Default-Language: Haskell2010
   Build-Depends:
     base >= 4.8,
     base-unicode-symbols >= 0.2,
@@ -38,5 +41,4 @@ Library
     FlexibleContexts
     MultiParamTypeClasses
     TypeSynonymInstances
-    OverlappingInstances
   GHC-Options:    -fno-warn-duplicate-exports -fwarn-unused-binds -fwarn-unused-imports -fwarn-unused-do-bind -fwarn-wrong-do-bind -fwarn-unrecognised-pragmas -fno-warn-tabs

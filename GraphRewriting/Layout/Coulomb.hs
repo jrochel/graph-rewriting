@@ -2,9 +2,10 @@
 module GraphRewriting.Layout.Coulomb where
 
 import Data.View
-import Data.Functor
+import Data.Functor ()
 import GraphRewriting.Graph.Types
 import GraphRewriting.Graph.Read
+import GraphRewriting.Pattern ()
 import GraphRewriting.Layout.Position
 import GraphRewriting.Layout.Force
 

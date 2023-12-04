@@ -30,11 +30,11 @@ instance View v n ⇒ View v (Wrapper n) where
 
 instance PortSpec n ⇒ PortSpec (Wrapper n) where portSpec = portSpec . wrappee
 
-instance View Rotation (Wrapper n) where
+instance {-# OVERLAPPING #-} View Rotation (Wrapper n) where
 	inspect = wRot
 	update v w = w {wRot = v}
 
-instance View Position (Wrapper n) where
+instance {-# OVERLAPPING #-} View Position (Wrapper n) where
 	inspect = wPos
 	update v w = w {wPos = v}
 
