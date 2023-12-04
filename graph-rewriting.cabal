@@ -6,6 +6,10 @@ License-File:   LICENSE
 Author:         Jan Rochel
 Maintainer:     jan@rochel.info
 Homepage:       http://rochel.info/#graph-rewriting
+Bug-Reports:    https://github.com/jrochel/graph-rewriting/issues
+Source-Repository head
+  Type:     git
+  Location: https://github.com/jrochel/graph-rewriting
 Build-Type:     Simple
 Synopsis:       Monadic graph rewriting of hypergraphs with ports and multiedges
 Description:
@@ -15,6 +19,7 @@ Cabal-Version:  >= 1.10
 Extra-Source-Files: AUTHORS
 
 Library
+  Default-Language: Haskell2010
   Build-Depends:
     base >= 4.9 && < 5,
     base-unicode-symbols >= 0.2 && < 0.3,
@@ -35,7 +40,7 @@ Library
     GraphRewriting.Graph.Internal
     GraphRewriting.Pattern.Internal
     GraphRewriting.Rule.Internal
-  Extensions:
+  Other-Extensions:
     UnicodeSyntax
     FlexibleContexts
     FlexibleInstances
