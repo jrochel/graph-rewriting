@@ -15,6 +15,7 @@ Cabal-Version:  >= 1.10
 Extra-Source-Files: AUTHORS
 
 Library
+  Default-Language: Haskell2010
   Build-Depends:
     base >= 4.9 && < 5,
     base-unicode-symbols >= 0.2 && < 0.3,
@@ -35,7 +36,7 @@ Library
     GraphRewriting.Graph.Internal
     GraphRewriting.Pattern.Internal
     GraphRewriting.Rule.Internal
-  Extensions:
+  Other-Extensions:
     UnicodeSyntax
     FlexibleContexts
     FlexibleInstances
