@@ -1,6 +1,6 @@
 -- | This is a monadic graph rewriting library for port graphs with a strong emphasis on nodes. It aims primarily at making it as convenient as possible to specify graph rewriting systems in Haskell and to experiment with them. There are a few aspects of the design to be pointed out:
 --
--- 1. The port graph is actually a hypergraph, therefore if we speak of edges we are in fact referring hyperedges.
+-- 1. The port graph is actually a hypergraph, therefore if we speak of edges we are in fact referring to hyperedges.
 --
 -- 2. The graph structure is essentially representated as a collection of nodes. The nodes have a user-defined type, where each node features a list of 'Port's to each of which an 'Edge' is attached. Edges are unlabeled and can not exist autonomously, i.e. each edge is connected to at least one port. Each port is connetected to exactly one edge. Two ports are connected if (and only if) they share the same edge. What is particularly convenient is how these ports can be modeled as constructor fields of a user-defined node type.
 --
