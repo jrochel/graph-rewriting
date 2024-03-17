@@ -40,8 +40,9 @@ Library
     GraphRewriting.Graph.Internal
     GraphRewriting.Pattern.Internal
     GraphRewriting.Rule.Internal
-  Other-Extensions:
+  Default-Extensions:
     UnicodeSyntax
+  Other-Extensions:
     FlexibleContexts
     FlexibleInstances
     TypeSynonymInstances

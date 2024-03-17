@@ -6,9 +6,7 @@ License-File:  LICENSE
 Author:        Jan Rochel
 Maintainer:    jan@rochel.info
 Homepage:      http://rochel.info/#graph-rewriting
-Source-Repository head
-  Type:     git
-  Location: https://github.com/jrochel/graph-rewriting/layout
+Bug-Reports:   https://github.com/jrochel/graph-rewriting/issues
 Build-Type:    Simple
 Synopsis:      Force-directed node placement intended for incremental graph drawing
 Description:   Defines basic methods for force-directed node displacement that can be combined into an incremental graph-drawing procedure. See graph-rewriting-ski package for an example.
@@ -19,10 +17,10 @@ Extra-Source-Files: AUTHORS
 Library
   Default-Language: Haskell2010
   Build-Depends:
-    base >= 4.8,
-    base-unicode-symbols >= 0.2,
-    graph-rewriting >= 0.7.8,
-    AC-Vector >= 2.4.0
+    base >= 4.8 && < 5,
+    base-unicode-symbols >= 0.2 && < 0.3,
+    graph-rewriting >= 0.7.8 && < 0.9,
+    AC-Vector >= 2.4.0 && < 2.5.0
   Exposed-Modules:
     GraphRewriting.Layout.Position
     GraphRewriting.Layout.PortSpec
@@ -35,8 +33,9 @@ Library
   Other-Modules:
     GraphRewriting.Layout.Force
     GraphRewriting.Layout.Geometry
-  Extensions:
+  Default-Extensions:
     UnicodeSyntax
+  Other-Extensions:
     FlexibleInstances
     FlexibleContexts
     MultiParamTypeClasses
