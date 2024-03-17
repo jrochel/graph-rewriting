@@ -9,7 +9,7 @@ Homepage:       http://rochel.info/#graph-rewriting
 Bug-Reports:    https://github.com/jrochel/graph-rewriting/issues
 Source-Repository head
   Type:     git
-  Location: https://github.com/jrochel/graph-rewriting
+  Location: https://github.com/jrochel/graph-rewriting/base
 Build-Type:     Simple
 Synopsis:       Monadic graph rewriting of hypergraphs with ports and multiedges
 Description:
