@@ -5,7 +5,8 @@ License:        BSD3
 License-File:   LICENSE
 Author:         Jan Rochel
 Maintainer:     jan@rochel.info
-Homepage:       http://rochel.info/#graph-rewriting
+Homepage:       https://github.com/jrochel/graph-rewriting
+Bug-Reports:    https://github.com/jrochel/graph-rewriting/issues
 Build-Type:     Simple
 Synopsis:       Interactive evaluation of first-order applicative term rewrite systems
 Description:    Given a set of term rewriting rules and an initial term with this tool you can interactively evaluate the corresponding term graph. The employed rule set has to be defined in one or more files. In the examples-directory a few rewriting systems are already supplied. To see how it works invoke the with the SKI-combinator rules and an initial term as arguments: @trs examples/ski.trs "SK(S(KIS)K)I"@. On how to interact with the application see the @GraphRewriting.GL.UI@ module of the graph-rewriting-gl package.
