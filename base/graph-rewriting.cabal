@@ -5,7 +5,7 @@ License:        BSD3
 License-File:   LICENSE
 Author:         Jan Rochel
 Maintainer:     jan@rochel.info
-Homepage:       http://rochel.info/#graph-rewriting
+Homepage:       https://github.com/jrochel/graph-rewriting
 Bug-Reports:    https://github.com/jrochel/graph-rewriting/issues
 Source-Repository head
   Type:     git
