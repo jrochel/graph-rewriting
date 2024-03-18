@@ -17,14 +17,14 @@ Extra-Source-Files: AUTHORS
 
 Library
   Build-Depends:
-    base >= 4.8 && < 4.10,
-    base-unicode-symbols >= 0.2 && < 0.3,
+    base >= 4.8,
+    base-unicode-symbols >= 0.2,
     graph-rewriting >= 0.7.8,
     graph-rewriting-layout >= 0.5.4,
-    GLUT >= 2.2 && < 2.8,
-    OpenGL >= 3.0 && < 3.1,
-    containers >= 0.3 && < 0.6,
-    AC-Vector >= 2.3 && < 2.4
+    GLUT >= 2.2,
+    OpenGL >= 3.0,
+    containers >= 0.3,
+    AC-Vector >= 2.3
   Exposed-Modules:
     GraphRewriting.GL.UI
     GraphRewriting.GL.Render
