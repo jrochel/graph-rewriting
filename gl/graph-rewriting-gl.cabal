@@ -7,7 +7,6 @@ Author:         Jan Rochel
 Maintainer:     jan@rochel.info
 Homepage:       https://github.com/jrochel/graph-rewriting
 Bug-Reports:    https://github.com/jrochel/graph-rewriting/issues
-Stability:      beta
 Build-Type:     Simple
 Synopsis:       OpenGL interface for interactive port graph rewriting
 Description:
