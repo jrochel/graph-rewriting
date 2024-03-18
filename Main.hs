@@ -32,15 +32,15 @@ parseFiles done todo = if Set.null todo
 		(imports, branch) ← parseFile f
 		let done' = Set.insert f done
 		let todo' = Set.union todo imports `Set.difference` done'
-		liftM (branch:) (parseFiles done' todo')
+		fmap (branch:) (parseFiles done' todo')
 
 parseFile ∷ (View Vertex n, View [Port] n) ⇒ FilePath → IO (Set FilePath, LabelledTree (Rule n))
 parseFile f = do
-	((imports,rules),parseErrors) ← liftM (parse ruleset) (readFile f)
-	when (not $ null parseErrors) $ do
+	((imports,rules),parseErrors) ← fmap (parse ruleset) (readFile f)
+	unless (null parseErrors) $ do
 		putStrLn $ "Parse errors in " ⧺ f ⧺ ":"
 		putStr $ unlines $ map show parseErrors
-	imports ← liftM (Set.fromList . catMaybes) (mapM checkImport imports)
+	imports ← fmap (Set.fromList . catMaybes) (mapM checkImport imports)
 	return (imports, Branch (takeBaseName f) [Leaf (show l ⧺ " -> " ⧺ show r) (buildRule l r) | (l,r) ← rules])
 	where checkImport i = do
 		i ← canonicalizePath $ takeDirectory f `combine` i
@@ -61,7 +61,7 @@ main = do
 	trsRules ← parseFiles Set.empty . Set.fromList =<< mapM canonicalizePath files
 
 	let (t,parseErrors) = parse term termInput
-	when (not $ null parseErrors) $ do
+	unless (null parseErrors) $ do
 		putStrLn "Parse errors in input term:"
 		putStr $ unlines $ map show parseErrors
 

@@ -4,7 +4,6 @@ module TermRewriting (buildRule) where
 import Prelude.Unicode
 import GraphRewriting
 import Data.Char (isLower)
-import Control.Applicative
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Term
