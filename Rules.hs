@@ -6,7 +6,6 @@ import Graph
 import GraphRewriting.Rule as Rule
 import GraphRewriting.Pattern
 import GraphRewriting.Graph.Read
-import Control.Applicative
 import Data.Monoid.Unicode
 
 
