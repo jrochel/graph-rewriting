@@ -9,8 +9,6 @@ import GraphRewriting.Pattern.InteractionNet
 import GraphRewriting.Graph.Read
 import GraphRewriting.Graph.Write
 import Data.List (transpose, elemIndex, delete)
-import Control.Applicative
-import Data.Monoid
 import Control.Monad
 
 import Data.Maybe (fromJust)

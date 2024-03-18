@@ -22,11 +22,8 @@ instance PortSpec NodeLS where
 		Operator   {} → sd n : [sd $ rm (alpha ops*x) `mmul` sws | x <- [0..la ops - 1]]
 		where
 			n  = Vector2 0 1
-			w  = Vector2 (-1) 0
 			e  = Vector2 1 0
 			s  = Vector2 0 (-1)
-			sw = Vector2 (-1) (-1)
-			se = Vector2 1 (-1)
 
 			la field = toEnum $ length (field node)
 			alpha f  = pi/(2*la f)
