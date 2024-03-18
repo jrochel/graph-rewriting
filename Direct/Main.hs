@@ -1,3 +1,4 @@
+{-# LANGUAGE UnicodeSyntax, FlexibleInstances, FlexibleContexts #-}
 module Main where
 
 import GraphRewriting.GL.Render
