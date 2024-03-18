@@ -1,0 +1,3 @@
+The combinator birds have been taken from http://www.angelfire.com/tx4/cus/combinator/birds.html
+Most of them are not so interesting by themselves since they are already in normal form (modulo argument
+accumulation). See http://dkeenan.com/Lambda/ to construct some more intersting examples from them.
