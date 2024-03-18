@@ -19,8 +19,6 @@ instance PortSpec SKI where
 		Root {} → [sd s]
 		where
 			n = Vector2 0 1
-			w = Vector2 (-1) 0
-			e = Vector2 1 0
 			s = Vector2 0 (-1)
 			sw = Vector2 (-1) (-1)
 			se = Vector2 1 (-1)

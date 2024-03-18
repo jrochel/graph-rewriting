@@ -5,7 +5,6 @@ import Prelude.Unicode
 import Data.Monoid.Unicode
 import Direct.Graph
 import GraphRewriting
-import Control.Applicative
 
 
 -- <chunk: rules>

@@ -24,8 +24,6 @@ instance PortSpec SKI where
 		S2 {} → [sd n, sd (sw*0.7), sd (se*0.7)]
 		where -- points of compass
 			n = Vector2 0 1
-			w = Vector2 (-1) 0
-			e = Vector2 1 0
 			s = Vector2 0 (-1)
 			sw = Vector2 (-1) (-1)
 			se = Vector2 1 (-1)
