@@ -2,11 +2,10 @@
 module Term where
 
 import Prelude.Unicode
-import Text.ParserCombinators.Parsec as Parsec
-import Text.ParserCombinators.Parsec.IndentParser as Indent
-import Text.ParserCombinators.Parsec.Language
-import Text.ParserCombinators.Parsec.IndentParser.Token
-import Control.Monad (liftM)
+import Text.Parsec
+import Text.Parsec.Token (makeTokenParser, GenLanguageDef(..))
+import Text.Parsec.IndentParsec
+import Control.Monad.Identity
 
 
 data Λ = A Λ Λ            -- ^ application
@@ -15,20 +14,38 @@ data Λ = A Λ Λ            -- ^ application
        | L [(String,Λ)] Λ -- ^ let binding
 	deriving (Show,Eq,Ord)
 
-parse ∷ String → Λ
-parse str = either (error ∘ show) id (Indent.parse parser "(null)" str)
-
 parseFile ∷ FilePath → IO Λ
-parseFile = liftM (either (error ∘ show) id) ∘ Indent.parseFromFile parser
+parseFile f = do
+	file ← readFile f
+	let parseErrorOrExpr = runIdentity $ runGIPT parser () f file
+	return $ either (error ∘ show) id parseErrorOrExpr
 
-parser ∷ IndentCharParser st Λ
+type IndentCharParser a = IndentParsec String () a
+
+langDef = LanguageDef { commentStart = "{-"
+                      , commentEnd   = "-}"
+                      , commentLine  = "--"
+                      , identStart = letter   <|> char '_'
+                      , identLetter = alphaNum <|> char '_'
+                      , opStart = oneOf "-+/*=<>"
+                      , opLetter = oneOf "-+/*=<>"
+                      , reservedNames = ["let", "in", "case", "of"]
+                      , reservedOpNames = ["=", "->", "→", "."]
+                      , caseSensitive = False
+                      , nestedComments = True
+                      }
+
+tokP :: IndentTokenParser String () Identity
+tokP = makeTokenParser langDef
+
+parser ∷ IndentCharParser Λ
 parser = expression where
 
 	expression = flip label "expression" $ application <|> letBinding
 
 	application = liftM (foldl1 A) $ many1 $ choice [parenthetic, abstraction, variable]
 
-	parenthetic = parens haskell expression
+	parenthetic = parens tokP expression
 
 	abstraction = flip label "abstraction" $ do
 		_ ← sym "λ" <|> sym "\\"
@@ -37,7 +54,7 @@ parser = expression where
 		body ← expression
 		return $ foldr Λ body vars
 
-	variable = liftM V $ ident <|> operator haskell <|> liftM (either show show) (naturalOrFloat haskell)
+	variable = liftM V $ ident <|> operator tokP <|> liftM (either show show) (naturalOrFloat tokP)
 
 	-- Ugly, but works. Keyword "in" terminates binding blocks and bindings. Allows empty lets
 	letBinding = flip label "let binding" $ do
@@ -47,7 +64,7 @@ parser = expression where
 			case e of
 				Just je → return ([], Just je)
 				Nothing → do
-					(b,e) ← lineFold $ do
+					(b,e) ← foldedLinesOf $ do
 						b ← binding
 						e ← optionMaybe $ keyword "in" >> expression
 						return (b,e)
@@ -58,18 +75,18 @@ parser = expression where
 								Nothing → return ([b], Nothing)
 								Just (bs, me) → return (b:bs, me)
 						Just je → return ([b], Just je)
-		(binds, e) ← block parseBindings
+		(binds, e) ← blockOf parseBindings
 		case e of
 			Nothing → liftM (L binds) (keyword "in" >> expression)
 			Just je → return $ L binds je
 
-	binding ∷ IndentCharParser st (String,Λ)
+	binding ∷ IndentCharParser (String,Λ)
 	binding = flip label "binding" $ do
 		funct  ← ident
 		params ← many ident
 		body   ← sym "=" >> expression
 		return (funct, foldr Λ body params)
 
-	keyword = reserved haskell
-	ident = identifier haskell
-	sym = symbol haskell
+	keyword = reserved tokP
+	ident = identifier tokP
+	sym = symbol tokP
