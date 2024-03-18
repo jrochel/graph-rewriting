@@ -7,6 +7,8 @@ import Text.ParserCombinators.UU.Utils as UU
 import Text.ParserCombinators.UU.BasicInstances as UU
 
 
+type Parse a = P (Str Char String LineCol) a
+
 data Term = App Term Term | Var Char deriving (Ord, Eq)
 
 type Import = FilePath
@@ -22,38 +24,38 @@ instance Show Term where
 			maybeWrap str = if isComponent then "(" ⧺ str ⧺ ")" else str
 			diverge = showComp True
 
-parse ∷ Parser a → String → (a, [Error LineCol])
+parse ∷ Parse a → String → (a, [Error LineCol])
 parse p inp = UU.parse ((,) <$> p <*> pEnd) (createStr (LineCol 0 0) inp)
 
-var ∷ Parser Term
+var ∷ Parse Term
 var = Var <$> alphaNum <?> "variable"
 
-term ∷ Parser Term
+term ∷ Parse Term
 term = foldl1 App <$> pList1 (var <|> parens term) <?> "term"
 	where parens p = pSym '(' *> p <* pSym ')'
 
-pImport ∷ Parser Import
+pImport ∷ Parse Import
 pImport = pToken "import" *>ε*> pList1 asciiPrintable
 
-ruleset ∷ Parser ([Import], [(Term,Term)])
+ruleset ∷ Parse ([Import], [(Term,Term)])
 ruleset = (,) <$> pList (pImport <* newlines) <*> pList1 (rule <* newlines)
 
-rule ∷ Parser (Term,Term)
+rule ∷ Parse (Term,Term)
 rule = (,) <$> term <*ε<* arrow <*ε<*> term
 
 -- primitive parsers
 
-newlines ∷ Parser ()
+newlines ∷ Parse ()
 newlines = pMunch (`elem` "\n\r") *> pure ()
 
-ε ∷ Parser () -- spaces
+ε ∷ Parse () -- spaces
 ε = pMunch (`elem` "\t ") *> pure ()
 
-arrow ∷ Parser String
+arrow ∷ Parse String
 arrow = pToken "->" <|> pToken "→" <?> "arrow"
 
-alphaNum ∷ Parser Char
+alphaNum ∷ Parse Char
 alphaNum = pLetter <|> pDigit <?> "alphaNum"
 
-asciiPrintable ∷ Parser Char
+asciiPrintable ∷ Parse Char
 asciiPrintable = pRange ('!', '~')
