@@ -1,0 +1,7 @@
+import ski.trs
+
+Bxyz → x(yx)
+Dxx  → xx
+Cxyz → xzy
+Yx   → x(Yx)
+Wxy  → xyy
