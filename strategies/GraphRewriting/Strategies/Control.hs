@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax, FlexibleInstances, MultiParamTypeClasses, FlexibleContexts, OverlappingInstances #-}
+{-# LANGUAGE UnicodeSyntax, FlexibleInstances, MultiParamTypeClasses, FlexibleContexts #-}
 module GraphRewriting.Strategies.Control where
 
 import Data.View
@@ -10,7 +10,7 @@ data Wrapper n = Wrapper {control :: Control, wrapped :: n}
 
 data Control = Control {stack ∷ [Node]} | NoControl
 
-instance View Control (Wrapper n) where
+instance {-# Overlapping #-} View Control (Wrapper n) where
 	inspect = control
 	update c n = n {control = c}
 
