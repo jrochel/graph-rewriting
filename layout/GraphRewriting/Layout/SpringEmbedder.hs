@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module GraphRewriting.Layout.SpringEmbedder where
 
 import GraphRewriting.Graph
