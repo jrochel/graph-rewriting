@@ -6,8 +6,8 @@ import qualified Graphics.Rendering.OpenGL as GL
 import GraphRewriting.GL.Global
 import Data.IORef
 import Control.Monad
-import Data.Functor
-import Control.Applicative
+import Data.Functor ()
+import Control.Applicative ()
 
 
 menuItemHeight = 20
@@ -15,7 +15,7 @@ font = Fixed9By15
 
 setupMenu ∷ IORef (GlobalVars n) → IO ()
 setupMenu globalVars = do
-	c ← liftM canvas $ readIORef globalVars
+	c ← canvas <$> readIORef globalVars
 	ruleTree ← getRules <$> readIORef globalVars
 	charWidth ← stringWidth font "0"
 	let cols = fromIntegral $ maximum $ map length $ lines $ showRuleTree ruleTree

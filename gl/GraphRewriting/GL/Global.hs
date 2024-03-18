@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE FlexibleContexts #-}
 module GraphRewriting.GL.Global where
 
 import Prelude.Unicode
@@ -12,7 +12,7 @@ import GraphRewriting.Layout.RotPortSpec
 import qualified Data.Set as Set
 import Data.Set (Set)
 import Data.List ((\\))
-import Control.Monad (when, replicateM_)
+import Control.Monad (when, unless, replicateM_)
 import Data.Foldable
 import Data.Functor
 import Data.Traversable
@@ -122,23 +122,21 @@ applyRule r globalVars = do
 	highlight globalVars
 
 selectRule i globalVars = do
-	ruleListLength ← numNodes <$> getRules <$> readIORef globalVars
-	if 0 ≤ i ∧ i < ruleListLength
-		then do
-			modifyIORef globalVars $ \v → v {selectedRule = i}
-			highlight globalVars
-		else return ()
+	ruleListLength ← numNodes . getRules <$> readIORef globalVars
+	when (0 ≤ i ∧ i < ruleListLength) $ do
+		modifyIORef globalVars $ \v → v {selectedRule = i}
+		highlight globalVars
 
 highlight globalVars = do
 	gv@GlobalVars {graph = g, getRules = rs, selectedRule = r, highlighted = h, canvas = c} ← readIORef globalVars
-	let rule = fold $ fmap snd (subtrees rs !! r)
+	let rule = foldMap snd (subtrees rs !! r)
 	let h' = Set.fromList [head match | (match,rewrite) ← runPattern rule g]
 	writeIORef globalVars $ gv {highlighted = h'}
 	redisplay c
 
 layoutLoop globalVars = do
 	gv@GlobalVars {graph = g, paused = p, layoutStep = l, canvas = c} ← readIORef globalVars
-	when (not p) $ do
+	unless p $ do
 		examine position (head $ nodes g) `seq` return ()
 		writeIORef globalVars $ gv {graph = execGraph (mapM l =<< readNodeList) g} -- TODO: relayout all nodes at once
 		redisplay c
@@ -173,7 +171,7 @@ applyLeafRules restriction idx gvs = do
 		Just (tree,p) → do
 			let ns = evalGraph readNodeList g
 			-- first we mark all redexes
-			let rule = restriction $ fold $ fmap snd tree
+			let rule = restriction $ foldMap snd tree
 			-- then we find a non-overlapping subset
 			let ms = head $ evalPattern (matches rule) g
 			-- then we apply the rules in the leafs while restricting them to that subset
@@ -197,4 +195,4 @@ applyLeafRules restriction idx gvs = do
 			else let
 					(match, rewrite) = head ms
 					g' = execGraph rewrite g
-				in applyLeafRules' (filter (\m → not $ any (`elem` match) m) matches, g') (n + 1, r)
+				in applyLeafRules' (filter (not . any (`elem` match)) matches, g') (n + 1, r)

@@ -14,7 +14,7 @@ import Data.IORef
 import GraphRewriting.Layout.Rotation
 import GraphRewriting.Layout.Position
 import qualified Data.Set as Set
-import Data.Functor
+import Data.Functor ()
 import Data.Maybe (catMaybes, listToMaybe)
 import Data.Vector.Class
 
@@ -52,7 +52,7 @@ registerCallbacks origLayoutStep aspect focus zoom project hyperEdgeToLines glob
 		case node of
 			Nothing → return ()
 			Just n  → do
-				_ ← (\idx → applyLeafRules (nextIs n) idx globalVars) =<< selectedRule <$> readIORef globalVars
+				_ ← (\idx → applyLeafRules (nextIs n) idx globalVars) . selectedRule =<< readIORef globalVars
 				highlight globalVars
 
 	inputCallback (GL.MouseButton GL.RightButton) GL.Up mod (GL.Position x y) = resume globalVars
@@ -86,7 +86,7 @@ registerCallbacks origLayoutStep aspect focus zoom project hyperEdgeToLines glob
 			GL.Vertex3 fx fy _ ← unproject from
 			GL.Vertex3 tx ty _ ← unproject to
 			modifyIORef focus $ \(GL.Vector3 x y _) → GL.Vector3 (x + tx - fx) (y + ty - fy) 0
-			redisplay =<< canvas <$> readIORef globalVars
+			redisplay . canvas =<< readIORef globalVars
 			GL.addTimerCallback 40 $ GL.motionCallback $= Just (scrollCallback to)
 
 	inputCallback (GL.Char 'z') GL.Up _ _ = autozoom
@@ -128,9 +128,7 @@ registerCallbacks origLayoutStep aspect focus zoom project hyperEdgeToLines glob
 		return $ listToMaybe $ catMaybes $ evalGraph (readOnly $ withNodes $ checkPos pos) g
 		where checkPos pos n = do
 			npos ← examineNode position n
-			return $ if (vmag (pos - npos) < 1)
-				then Just n
-				else Nothing
+			return $ if vmag (pos - npos) < 1 then Just n else Nothing
 
 	reshape s@(GL.Size w h) = do
 		writeIORef aspect newAspect
