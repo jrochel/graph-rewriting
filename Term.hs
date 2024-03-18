@@ -2,15 +2,10 @@
 module Term where
 
 import Prelude.Unicode
-import Text.ParserCombinators.Parsec as Parsec
-	hiding (space, eof, notFollowedBy, anyChar, many, optional, (<|>))
-import Text.ParserCombinators.Parsec.IndentParser as Indent
-import Text.ParserCombinators.Parsec.Language
-import Text.ParserCombinators.Parsec.IndentParser.Token
-import qualified Text.ParserCombinators.Parsec.Token as T
-import Control.Monad
-import Data.Functor
-import Control.Applicative
+import Text.Parsec
+import Control.Monad.Identity
+import Text.Parsec.Token (makeTokenParser, GenLanguageDef(..))
+import Text.Parsec.IndentParsec
 
 -- | The AST of a lambda expression
 data Λ = A Λ Λ            -- ^ application
@@ -23,89 +18,93 @@ data Λ = A Λ Λ            -- ^ application
 -- | The LHS of a case expression. Numbers are parsed as strings.
 data Pattern = Pat {constr ∷ String, vars ∷ [String]} deriving (Show, Eq, Ord)
 
-testParser ∷ IndentParser tok () c → [tok] → c
-testParser parser str = either (error ∘ show) id (Indent.parse parser "(null)" str)
+type IndentCharParser a = IndentParsec String () a
 
-parse ∷ [Char] → Λ
-parse = testParser expression
+langDef = LanguageDef { commentStart = "{-"
+                      , commentEnd   = "-}"
+                      , commentLine  = "--"
+                      , identStart = letter   <|> char '_'
+                      , identLetter = alphaNum <|> char '_'
+                      , opStart = oneOf "-+/*=<>"
+                      , opLetter = oneOf "-+/*=<>"
+                      , reservedNames = ["let", "in", "case", "of"]
+                      , reservedOpNames = ["=", "->", "→", "."]
+                      , caseSensitive = False
+                      , nestedComments = True
+                      }
 
 parseFile ∷ FilePath → IO Λ
-parseFile = liftM (either (error ∘ show) id) ∘ Indent.parseFromFile expression
+parseFile f = do
+	file ← readFile f
+	let parseErrorOrExpr = runIdentity $ runGIPT expression () f file
+	return $ either (error ∘ show) id parseErrorOrExpr
 
-expression ∷ IndentCharParser st Λ
+expression ∷ IndentCharParser Λ
 expression = flip label "expression" $ letBinding <|> caseExpr <|> application
 
-application ∷ IndentCharParser st Λ
+application ∷ IndentCharParser Λ
 application = foldl1 A <$> many1 (parenthetic <|> abstraction <|> variable <|> numeral)
 
-variable ∷ IndentCharParser st Λ
-variable = C <$> (ident <|> operator haskell) <*> pure []
+variable ∷ IndentCharParser Λ
+variable = C <$> (ident <|> operator tokP) <*> pure []
 
-numeral ∷ IndentCharParser st Λ
+numeral ∷ IndentCharParser Λ
 numeral = C <$> numeric <*> pure []
 
-numeric ∷ IndentCharParser st String
-numeric = either show show <$> naturalOrFloat haskell
+numeric ∷ IndentCharParser String
+numeric = either show show <$> naturalOrFloat tokP
 
-parenthetic ∷ IndentCharParser st Λ
-parenthetic = parens haskell expression
+parenthetic ∷ IndentCharParser Λ
+parenthetic = parens tokP expression
 
-tokP ∷ T.TokenParser st
-tokP = T.makeTokenParser haskellDef
+tokP :: IndentTokenParser String () Identity
+tokP = makeTokenParser langDef
 
-caseExpr ∷ IndentCharParser st Λ
-caseExpr = flip label "case expression" $
-	Case <$> (keyword "case" *> expression <* keyword "of") <*> bracesOrBlock tokP patterns
+caseExpr ∷ IndentCharParser Λ
+caseExpr = flip label "case expression" $ do
+	keyword "case"
+	Case <$> expression <* keyword "of" <*> blockOf (many1 $ foldedLinesOf pattern)
 
-patterns ∷ IndentCharParser st [(Pattern, Λ)]
-patterns = semiOrNewLineSep tokP pattern
+arrow ∷ IndentCharParser ()
+arrow = reservedOp tokP "→" <|> reservedOp tokP "->"
 
-arrow ∷ IndentCharParser st String
-arrow = sym "→" <|> sym "->"
+point ∷ IndentCharParser ()
+point = reservedOp tokP "."
 
-pattern ∷ IndentCharParser st (Pattern, Λ)
-pattern = (,) <$> lhs <*> (arrow *> expression) where
-	lhs = Pat <$> (ident <|> numeric) <*> many (ident <|> numeric)
+pattern ∷ IndentCharParser (Pattern, Λ)
+pattern = (,) <$> lhs <*> expression where
+	lhs = Pat <$> (ident <|> numeric) <*> manyTill (ident <|> numeric) arrow
 
-lambda ∷ IndentCharParser st String
+lambda ∷ IndentCharParser String
 lambda = sym "λ" <|> sym "\\"
 
-abstraction ∷ IndentCharParser st Λ
+abstraction ∷ IndentCharParser Λ
 abstraction = flip label "abstraction" $
-	flip (foldr Λ) <$> (lambda *> many1 ident) <*> ((sym "." <|> arrow) *> expression)
+	flip (foldr Λ) <$> (lambda *> many1 ident) <*> ((arrow <|> point) *> expression)
 
--- Ugly, but works. Keyword "in" terminates binding blocks and bindings. Allows empty lets
-letBinding ∷ IndentCharParser st Λ
+letBinding ∷ IndentCharParser Λ
 letBinding = flip label "let binding" $ do
-	let parseBindings = do
-		e ← optionMaybe $ keyword "in" *> expression
-		case e of
-			Just je → return ([], Just je)
-			Nothing → do
-				(b,e) ← lineFold $ (,) <$> binding <*> (optionMaybe $ keyword "in" *> expression)
-				case e of
-					Nothing → do
-						rec ← optionMaybe parseBindings
-						case rec of
-							Nothing → return ([b], Nothing)
-							Just (bs, me) → return (b:bs, me)
-					Just je → return ([b], Just je)
-	(binds, e) ← keyword "let" *> block parseBindings
-	case e of
-		Nothing → L binds <$> (keyword "in" *> expression)
-		Just je → return $ L binds je
+	keyword "let"
+	try oneLiner <|> multipleBindings where
+		oneLiner = do
+			b ← binding
+			L [b] <$> (keyword "in" *> expression)
+		multipleBindings = L <$> blockOf (many1 $ foldedLinesOf binding) <*> (keyword "in" *> expression)
 
-binding ∷ IndentCharParser st (String,Λ)
+binding ∷ IndentCharParser (String,Λ)
 binding = flip label "binding" $ do
 	funct ← ident
-	rhs ← flip (foldr Λ) <$> many ident <*> (sym "=" *> expression)
+	rhs ← flip (foldr Λ) <$> manyTill ident equals <*> expression
 	return (funct, rhs)
 
-keyword ∷ String → IndentCharParser st ()
-keyword = reserved haskell
+keyword ∷ String → IndentCharParser ()
+keyword = reserved tokP
 
-ident ∷ IndentCharParser st String
-ident = identifier haskell
+ident ∷ IndentCharParser String
+ident = identifier tokP
 
-sym ∷ String → IndentCharParser st String
-sym = symbol haskell
+sym ∷ String → IndentCharParser String
+sym = symbol tokP
+
+equals ∷ IndentCharParser ()
+equals = reservedOp tokP "="

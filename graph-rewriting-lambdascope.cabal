@@ -12,22 +12,23 @@ Synopsis:       Lambdascope, an optimal evaluator of the lambda calculus, as an 
 Description:    Lambdascope is an optimal evaluator of the λβ-calculus described in the paper "Lambdascope - Another optimal implementation of the lambda-calculus" by Vincent van Oostrom, Kees-Jan van de Looij, and Marijn Zwitserlood. Call "lambdascope" with one of the files from the "examples" directory as an argument. For usage of the GUI see "GraphRewriting.GL.UI". Use the "--lmo" flag for leftmost outermost evalution and "--bench" for non-graphical evaluation to weak head normal form.
 Category:       Compilers/Interpreters, Application
 Cabal-Version:  >= 1.6
-Data-Files:     examples/*.l examples/case/*.l
+Data-Files:     examples/*.l examples/*.l
 Extra-Source-Files: AUTHORS
 
 Executable lambdascope
   Main-Is:        Main.hs
   Build-Depends:
-    base >= 4 && < 5,
+    base >= 4.9 && < 5,
     base-unicode-symbols >= 0.2,
     graph-rewriting >= 0.7.8,
     graph-rewriting-layout >= 0.5.4,
     graph-rewriting-gl >= 0.7.6,
     graph-rewriting-strategies >= 0.2.4,
+    mtl >= 1.1 && < 2.3,
     parsec >= 3.1,
     GLUT >= 2.2,
     OpenGL >= 3.0,
-    IndentParser >= 0.2
+    indentparser >= 0.1
   Extensions:
     UnicodeSyntax
     FlexibleInstances
