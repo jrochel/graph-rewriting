@@ -10,4 +10,4 @@ This is a monadic graph rewriting library for port graphs with a strong emphasis
 
 See the graph-rewriting-ski package for an example of a simple rewrite system. Together with the graph-rewriting-layout and the graph-rewriting-gl packages it is easy to build a graphical and interactive application to experiment with your rewrite system.
 
-The library does not (yet) offer combinators to define strategies, since the emphasis of the project was on creating an interactive graph-rewriting tool where rules and rewriting positions are selected manually.
+This does library does not offer combinators for defining strategies. These are offered by the package graph-rewriting-strategies.
