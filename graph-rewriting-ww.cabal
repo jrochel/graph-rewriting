@@ -1,31 +1,34 @@
 Name:           graph-rewriting-ww
-Version:        0.3.7
+Version:        0.3.8
 Copyright:      (c) 2010, Jan Rochel
 License:        BSD3
 License-File:   LICENSE
 Author:         Jan Rochel
 Maintainer:     jan@rochel.info
-Homepage:       http://rochel.info/#graph-rewriting
+Homepage:       https://github.com/jrochel/graph-rewriting
+Bug-Reports:    https://github.com/jrochel/graph-rewriting/issues
 Build-Type:     Simple
-Synopsis:       Evaluator of the lambda-calculus in an interactive graph rewriting system with explicit sharing
-Description:    Evaluate a given λ-term (letrecs may be used) interactively. It uses duplicators to explicitly render fully-lazy sharing according to Wadsworth's approach. The reduction rules are split into two groups, safe rules and unsafe rules, which implement the procedure for unsharing the MFE under one duplicator.
+Synopsis:       Interactive evaluator of the lambda-calculus with explicit sharing
+Description:    Evaluate a given λ-term (letrecs may be used) interactively in a port-graph rewriting system. It uses duplicators to explicitly render fully-lazy sharing according to Wadsworth's approach. The reduction rules are split into two groups, safe rules and unsafe rules, which implement the procedure for unsharing the MFE under one duplicator.
 Category:       Application, Compilers/Interpreters
-Cabal-Version:  >= 1.6
+Cabal-Version:  >= 1.10
 Data-Files:     examples/*.l
 
 Executable ww
+  Default-Language: Haskell2010
   Main-Is:        Main.hs
   Build-Depends:
-    base >= 4.8 && < 4.10,
+    base >= 4.9 && < 5,
     base-unicode-symbols >= 0.2 && < 0.3,
-    graph-rewriting >= 0.7.8,
-    graph-rewriting-layout >= 0.5.4,
-    graph-rewriting-gl >= 0.7.6,
+    graph-rewriting >= 0.7.8 && < 0.9,
+    graph-rewriting-layout >= 0.5.4 && < 0.6,
+    graph-rewriting-gl >= 0.7.6 && < 0.8,
     parsec >= 3.1 && < 3.2,
-    GLUT >= 2.2 && < 2.8,
-    OpenGL >= 3.0 && < 3.1,
-    IndentParser >= 0.2 && < 0.3
-  Extensions:
+    GLUT >= 2.2 && < 3,
+    OpenGL >= 3.0 && < 4,
+    indentparser >= 0.1 && < 0.2
+  Default-Extensions: UnicodeSyntax
+  Other-Extensions:
     UnicodeSyntax
     FlexibleInstances
     FlexibleContexts
