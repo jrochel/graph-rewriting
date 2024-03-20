@@ -1,5 +1,5 @@
 {-# LANGUAGE UnicodeSyntax, FlexibleContexts #-}
--- | Patterns allow monadic scrutinisation of the graph (modifications are not possible) while keeping track of matched nodes (history). A 'Pattern' is interpreted by 'runPattern' that returns a result for each position in the graph where the pattern matches. It is allowed to 'fail' inside the 'Pattern' monad, indicating that the pattern does not match, which corresponds to conditional rewriting.
+-- | Patterns allow monadic scrutiny of the graph (modifications are not possible) while keeping track of matched nodes (history). A 'Pattern' is interpreted by 'runPattern' that returns a result for each position in the graph where the pattern matches. It is allowed to 'fail' inside the 'Pattern' monad, indicating that the pattern does not match, which corresponds to conditional rewriting.
 module GraphRewriting.Pattern (module GraphRewriting.Pattern, PatternT, Pattern, Match, (<|>)) where
 
 import Prelude.Unicode
@@ -12,7 +12,7 @@ import qualified Data.Set as Set (empty, insert, member)
 import Control.Applicative
 
 
--- | A pattern represents a graph scrutinisation that memorises all the scrutinised nodes during matching.
+-- | A pattern represents a graph scrutiny that memorises all the scrutinised nodes during matching.
 type Pattern n = PatternT n Identity
 
 instance MonadFail Identity where
@@ -120,7 +120,7 @@ requireM p = p >>= require
 
 -- some base patterns --------------------------------------------------------
 
--- | Lift a scrutinisation from 'Reader' to 'Pattern' leaving the history unchanged.
+-- | Lift a scrutiny from 'Reader' to 'Pattern' leaving the history unchanged.
 liftReader ∷ Monad m ⇒ Reader (Graph n) a → PatternT n m a
 liftReader r = PatternT $ \h → do
 	x ← runReader r `liftM` ask

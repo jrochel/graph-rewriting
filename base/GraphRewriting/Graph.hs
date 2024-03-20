@@ -1,5 +1,5 @@
 {-# LANGUAGE UnicodeSyntax #-}
--- | Most of the functions for graph scrutinisation ('GraphRewriting.Graph.Read') and modification ('GraphRewriting.Graph.Write') are defined monadically. This module defines functions for extracting these monadic values and a few non-monadic graph scrutinisation/modification functions.
+-- | Most of the functions for graph scrutiny ('GraphRewriting.Graph.Read') and modification ('GraphRewriting.Graph.Write') are defined monadically. This module defines functions for extracting these monadic values and a few non-monadic graph scrutiny/modification functions.
 module GraphRewriting.Graph (module GraphRewriting.Graph, module GraphRewriting.Graph.Types, Graph (..)) where
 
 import GraphRewriting.Graph.Types
